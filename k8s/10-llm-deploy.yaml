@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: llm-service
+  namespace: sse-langchain
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: llm-service
+  template:
+    metadata:
+      labels:
+        app: llm-service
+    spec:
+      containers:
+        - name: llm-service
+          image: llm-service:local
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8001
+          env:
+            - name: OPENAI_API_KEY
+              value: ""
+            - name: OPENAI_MODEL
+              value: "gpt-4o-mini"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: llm-service
+  namespace: sse-langchain
+spec:
+  selector:
+    app: llm-service
+  ports:
+    - name: http
+      port: 8001
+      targetPort: 8001
+  type: ClusterIP

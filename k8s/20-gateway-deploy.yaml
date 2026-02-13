@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sse-gateway
+  namespace: sse-langchain
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: sse-gateway
+  template:
+    metadata:
+      labels:
+        app: sse-gateway
+    spec:
+      containers:
+        - name: sse-gateway
+          image: sse-gateway:local
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8000
+          env:
+            - name: LLM_URL
+              value: "http://llm-service:8001"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: sse-gateway
+  namespace: sse-langchain
+spec:
+  selector:
+    app: sse-gateway
+  ports:
+    - name: http
+      port: 8000
+      targetPort: 8000
+  type: ClusterIP
